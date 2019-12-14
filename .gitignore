@@ -130,4 +130,5 @@ dmypy.json
 
 # Other
 /input
+/output
 /dask-worker-space
