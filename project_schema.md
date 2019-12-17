@@ -25,3 +25,22 @@
 - Users Clustering: 
     - Keywords of the seen movies: NLTK of the movies sinopsis
     - Keywords file?
+
+
+Pipeline:
+1. data_wrangling:
+    - Generate the file genres_dummies with the dummies of genres per movie.
+
+2. Add Features to Ratings dataset:
+    1.a
+    - Count of ratings per user
+    - User Average Rating
+    - Movie Average Rating
+    - Count of ratings per user (popularity)
+    1.b
+    - Genres dummies per line
+3. Clustering:
+    - Filter the users on the ratings dataset per count of ratings.
+    - Generate a matrix of user + sum of genres dummies per movie.
+    - Spectral Clustering over the matrix.
+4. Supervised Learning. 
