@@ -53,8 +53,8 @@ def addMoviesBulk(ratings, genres_list, collection=movies):
             movieid)['mean_rt_movie'].max()
         popularity = movies_grouped.get_group(movieid)['popularity'].max()
         cluster = movies_grouped.get_group(movieid)['clusters'].max()
-        genres = [{genre: int(movies_grouped.get_group(
-            movieid)[genre].max())} for genre in genres_list]
+        genres = {genre: int(movies_grouped.get_group(
+            movieid)[genre].max()) for genre in genres_list}
         new_movie = {
             'movieId': int(movieid),
             'movie_avg_rating': float(movie_avg_rating),
@@ -66,29 +66,42 @@ def addMoviesBulk(ratings, genres_list, collection=movies):
         print(f'movie {movieid} added to collection {collection}')
 
 
-def buildDataframe(userid):
-    user = users.find({"userId": userid})
-    movies = movies.find({"movieId": {"$in": user[0]['movies_rated']}})
-    df = pd.DataFrame({
-        ''
-    })
+def getMoviestoWatch(userId):
+    user = list(users.find({"userId": userId}))
+    watched = user[0]['movies_rated']
+    to_watch = list(movies.find(
+        {"movieId": {"$nin": watched}}))
+    return user, to_watch
 
 
 def main():
+    user, to_watch = getMoviestoWatch(49)
+    print(pd.DataFrame.from_dict(to_watch))
+    len(to_watch)
+    # print(df=pd.DataFrame({
+    #     'movieId': to_watch[0]['movieId'],
+    #     'avg_rt_user': user[0]['user_avg_rating'],
+    #     'mean_rt_movie': to_watch[0]['movie_avg_rating'],
+    #     'popularity': to_watch[0]['popularity'],
+
+    # })
+    # )
+
     # ratings = dd.read_csv('../output/ratings-0/ratings_0-*.csv')
     # ratings = ratings.rename(
     #     columns={'mean_rt_user': 'mean_rt_movie', 'avg_rt_user': 'mean_rt_user', })
     # ratings = ratings.compute()
-    # addUsersbulk(ratings)
+    # # addUsersbulk(ratings)
     # genres_list = ['Action', 'Adventure', 'Animation',
-                   'Aniplex', 'BROSTA TV', 'Carousel Productions', 'Comedy', 'Crime',
-                   'Documentary', 'Drama', 'Family', 'Fantasy', 'Foreign', 'GoHands',
-                   'History', 'Horror', 'Mardock Scramble Production Committee', 'Music',
-                   'Mystery', 'Odyssey Media', 'Pulser Productions', 'Rogue State',
-                   'Romance', 'Science Fiction', 'Sentai Filmworks', 'TV Movie',
-                   'Telescene Film Group Productions', 'The Cartel', 'Thriller',
-                   'Vision View Entertainment', 'War', 'Western']
+    #                'Aniplex', 'BROSTA TV', 'Carousel Productions', 'Comedy', 'Crime',
+    #                'Documentary', 'Drama', 'Family', 'Fantasy', 'Foreign', 'GoHands',
+    #                'History', 'Horror', 'Mardock Scramble Production Committee', 'Music',
+    #                'Mystery', 'Odyssey Media', 'Pulser Productions', 'Rogue State',
+    #                'Romance', 'Science Fiction', 'Sentai Filmworks', 'TV Movie',
+    #                'Telescene Film Group Productions', 'The Cartel', 'Thriller',
+    #                'Vision View Entertainment', 'War', 'Western']
     # addMoviesBulk(ratings, genres_list)
+
 
     # collist = db.list_collection_names()
     # # Create New Collections

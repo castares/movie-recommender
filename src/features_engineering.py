@@ -1,26 +1,23 @@
 import numpy as np
 import pandas as pd
 import time
-
-# NLTK
-import nltk
-from nltk import word_tokenize, pos_tag
+from IPython.core.display import display, HTML
 
 # Dask
+import dask.array as da
 import dask.dataframe as dd
+from dask_ml import preprocessing
+from dask_ml.metrics import euclidean_distances
+from dask_ml.cluster import KMeans
+from dask_ml.cluster import SpectralClustering
 
-# def processOverview(overview):
-#     valid_tags = ["JJ","JJR","JJS","NN","NNS"]
-#     tokens = [item for item, tag in pos_tag(word_tokenize(overview)) if tag in valid_tags]
-#     return tokens
+from joblib import dump, load
 
-
-# def getTokenlist(lst):
-#     tokens_list = []
-#     for movieid in lst:
-#         tokens_list.append(",".join(processOverview(movieid)))
-#         print(f"movie: {movieid} processed")
-#     print(len(set(tokens_list)))
+# Sklearn
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_squared_error
+from sklearn import svm, linear_model, tree
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, AdaBoostRegressor
 
 
 def addUserFeatures(ratings_ddf):
@@ -62,6 +59,32 @@ def addWeekdayColumn(ratings_ddf):
     ratings_ddf['weekday'] = ratings_ddf['timestamp'].apply(
         lambda x: pd.Timestamp(x).dayofweek, meta=int)
     return ratings_ddf
+
+
+def ratingsNormalizer(ratings_ddf):
+    # Normalize the data between 0 and 1
+    scaler = preprocessing.MinMaxScaler()
+    scaler.fit(ratings_ddf[["mean_rt_user", "mean_rt_movie", "popularity"]])
+    ratings_normalized = scaler.transform(
+        ratings_ddf[["mean_rt_user", "mean_rt_user", "popularity"]])
+    ratings_ddf[['mean_rt_user', 'mean_rt_user',
+                 'popularity']] = ratings_normalized
+    return ratings_ddf
+
+
+def dropZeroColumns(df):
+    # Remove columns with value max = 0 from a given Pandas DataFrame.
+    to_drop = [e for e in df.columns if df[e].max() == 0]
+    df = df.drop(columns=to_drop)
+    return df
+
+
+def defineXy(ratings_df):
+    ratings_ddf = dropZeroColumns(ratings_df)
+    to_X = [e for e in ratings_df.columns if ratings_df[e].max() <= 1]
+    X = ratings_df[to_X]
+    y = ratings_df['rating']
+    return X, y
 
 
 def main():
