@@ -64,11 +64,11 @@ def addWeekdayColumn(ratings_ddf):
 def ratingsNormalizer(ratings_ddf):
     # Normalize the data between 0 and 1
     scaler = preprocessing.MinMaxScaler()
-    scaler.fit(ratings_ddf[["mean_rt_user", "mean_rt_movie", "popularity"]])
+    scaler.fit(
+        ratings_ddf[["user_avg_rating", "movie_avg_rating"]])
     ratings_normalized = scaler.transform(
-        ratings_ddf[["mean_rt_user", "mean_rt_user", "popularity"]])
-    ratings_ddf[['mean_rt_user', 'mean_rt_user',
-                 'popularity']] = ratings_normalized
+        ratings_ddf[["user_avg_rating", "movie_avg_rating"]])
+    ratings_ddf[["user_avg_rating", "movie_avg_rating"]] = ratings_normalized
     return ratings_ddf
 
 

@@ -15,6 +15,7 @@ db = client['movie_recommender']
 # define collections
 users = db['users']
 movies = db['movies']
+metadata = db['movies_metadata']
 
 
 def getOverview(movieid):
@@ -35,7 +36,7 @@ def addUsersbulk(ratings, collection=users):
     ratings_grouped = ratings.groupby(['userId'])
     for userid, _ in ratings_grouped:
         user_avg_rating = ratings_grouped.get_group(
-            userid)['mean_rt_user'].max()
+            userid)['user_avg_rating'].max()
         movieids = [e for e in ratings_grouped.get_group(userid)['movieId']]
         new_user = {
             'userId': int(userid),
@@ -50,7 +51,7 @@ def addMoviesBulk(ratings, genres_list, collection=movies):
     movies_grouped = ratings.groupby(['movieId'])
     for movieid, _ in movies_grouped:
         movie_avg_rating = movies_grouped.get_group(
-            movieid)['mean_rt_movie'].max()
+            movieid)['movie_avg_rating'].max()
         popularity = movies_grouped.get_group(movieid)['popularity'].max()
         cluster = movies_grouped.get_group(movieid)['clusters'].max()
         genres = {genre: int(movies_grouped.get_group(
@@ -66,18 +67,21 @@ def addMoviesBulk(ratings, genres_list, collection=movies):
         print(f'movie {movieid} added to collection {collection}')
 
 
+# TODO: The $nin on movieId doesn't work.
 def getMoviestoWatch(userId):
-    user = list(users.find({"userId": userId}))
+    user = list(users.find({'userId': userId}))
     watched = user[0]['movies_rated']
     to_watch = list(movies.find(
-        {"movieId": {"$nin": watched}}))
+        {'movieId': {'$nin': watched}}))
     return user, to_watch
 
 
+def getMovieNames(movieIds_list):
+    return metadata.find({'id': {'$in': movieIds_list}}, {'id': 1, 'original_title': 1, 'overview': 1})
+
+
 def main():
-    user, to_watch = getMoviestoWatch(49)
-    print(pd.DataFrame.from_dict(to_watch))
-    len(to_watch)
+    pass
     # print(df=pd.DataFrame({
     #     'movieId': to_watch[0]['movieId'],
     #     'avg_rt_user': user[0]['user_avg_rating'],
@@ -87,20 +91,21 @@ def main():
     # })
     # )
 
-    # ratings = dd.read_csv('../output/ratings-0/ratings_0-*.csv')
-    # ratings = ratings.rename(
-    #     columns={'mean_rt_user': 'mean_rt_movie', 'avg_rt_user': 'mean_rt_user', })
-    # ratings = ratings.compute()
-    # # addUsersbulk(ratings)
-    # genres_list = ['Action', 'Adventure', 'Animation',
-    #                'Aniplex', 'BROSTA TV', 'Carousel Productions', 'Comedy', 'Crime',
-    #                'Documentary', 'Drama', 'Family', 'Fantasy', 'Foreign', 'GoHands',
-    #                'History', 'Horror', 'Mardock Scramble Production Committee', 'Music',
-    #                'Mystery', 'Odyssey Media', 'Pulser Productions', 'Rogue State',
-    #                'Romance', 'Science Fiction', 'Sentai Filmworks', 'TV Movie',
-    #                'Telescene Film Group Productions', 'The Cartel', 'Thriller',
-    #                'Vision View Entertainment', 'War', 'Western']
-    # addMoviesBulk(ratings, genres_list)
+    ratings = dd.read_csv('../output/ratings-0/ratings_0-*.csv')
+    ratings = ratings.rename(
+        columns={'mean_rt_user': 'movie_avg_rating', 'avg_rt_user': 'user_avg_rating', })
+    ratings = ratings.compute()
+    fte.ratingsNormalizer(ratings)
+    addUsersbulk(ratings)
+    genres_list = ['Action', 'Adventure', 'Animation',
+                   'Aniplex', 'BROSTA TV', 'Carousel Productions', 'Comedy', 'Crime',
+                   'Documentary', 'Drama', 'Family', 'Fantasy', 'Foreign', 'GoHands',
+                   'History', 'Horror', 'Mardock Scramble Production Committee', 'Music',
+                   'Mystery', 'Odyssey Media', 'Pulser Productions', 'Rogue State',
+                   'Romance', 'Science Fiction', 'Sentai Filmworks', 'TV Movie',
+                   'Telescene Film Group Productions', 'The Cartel', 'Thriller',
+                   'Vision View Entertainment', 'War', 'Western']
+    addMoviesBulk(ratings, genres_list)
 
 
     # collist = db.list_collection_names()
