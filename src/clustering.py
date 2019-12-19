@@ -36,7 +36,7 @@ def main():
         '/content/drive/My Drive/movie-recommender-input/genres_dummies.csv')
     fte.addGenresDummies(ratings, genres_dummies)
     users_genres = userGenresMatrix(ratings, genres_dummies)
-    dropZeroColumns(users_genres)
+    # dropZeroColumns(users_genres)
 
 
 if __name__ == "__main__":

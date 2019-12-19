@@ -77,15 +77,14 @@ def main():
     # drop 0 value columns
     ratings = addWeekdayColumn(ratings_ddf)
     ratings.compute()
-
-    ratings =
+    ####
     filt_ratings = filterbyRatingsAmount(ratings, 100, 500)
     genres_dummies = dd.read_csv(
         '/content/drive/My Drive/movie-recommender-input/genres_dummies.csv')
     sparseMatrix(ratings, genres_dummies.compute())
 
-    #ratings = pd.read_csv("../input/ratings_small.csv")
-    #metadata['keywords'] = metadata['overview'].apply(lambda x: processOverview(str(x)))
+    # ratings = pd.read_csv("../input/ratings_small.csv")
+    # metadata['keywords'] = metadata['overview'].apply(lambda x: processOverview(str(x)))
 
 
 if __name__ == "__main__":
