@@ -42,10 +42,8 @@ def genresDummies(metadata):
     genres_dummies.to_csv("../input/genres_dummies.csv", index=False)
     return genres_dummies
 
-# # #Drop Columns without values.
-# to_drop = [e for e in users_genres.columns if users_genres[e].max() == 0]
-# # users_genres = users_genres.drop(to_drop, axis=1)
-# x = users_genres['BROSTA TV'].max().compute()
+# TODO: implement the dropzerocolumns on the creation of the genres_dummies doc.
+# genres_dummies = dropZeroColumns(genres_dummies.compute())
 
 
 def main():

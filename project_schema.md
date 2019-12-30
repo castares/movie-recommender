@@ -44,3 +44,7 @@ Pipeline:
     - Generate a matrix of user + sum of genres dummies per movie.
     - Spectral Clustering over the matrix.
 4. Supervised Learning. 
+
+
+- API Response:
+    - Movie id, movie title, predicted rating, genres, link to IMDB. 

@@ -22,15 +22,16 @@ def userGenresMatrix(ratings_ddf, genres_dummies):
     return users_genres
 
 
-def dropZeroColumns(ratings_ddf, genres_dummies):
-    to_drop = [e for e in ratings.columns if ratings[e].max() == 0]
-    genres_dummies = genres_dummies.drop(columns=to_drop)
-    return genres_dummies
+def dropZeroColumns(df):
+    # Remove columns with value max = 0 from a given Pandas DataFrame.
+    to_drop = [e for e in df.columns if df[e].max() == 0]
+    df = df.drop(columns=to_drop)
+    return df
 
 
 def main():
     ratings = dd.read_csv(
-        '/content/drive/My Drive/movie-recommender-input/ratings.csv')
+        '/content/drive/My Drive/movie-recommender-input/ratings_small.csv')
     ratings = fte.addUserFeatures(ratings_ddf)
     genres_dummies = dd.read_csv(
         '/content/drive/My Drive/movie-recommender-input/genres_dummies.csv')
