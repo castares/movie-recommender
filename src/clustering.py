@@ -10,16 +10,29 @@ from dask_ml.metrics import euclidean_distances
 from dask_ml.cluster import KMeans
 from dask_ml.cluster import SpectralClustering
 
-# LocalFiles
-import features_engineering as fte
-
 
 def userGenresMatrix(ratings_ddf, genres_dummies):
     # Receives the ratings Dask Dataframe with ratings count per user and genres dummies already added.
     # Returns a matrix with userId and the sum of genres dummies per user.
     g_userid = ratings_ddf.groupby('userId')
     users_genres = g_userid[genres_dummies.columns].sum()
+    users_genres = users_genres.drop('id', axis=1)
     return users_genres
+
+
+def dataScaling(users_genres):
+    scaler = preprocessing.MinMaxScaler()
+    scaler.fit(users_genres)
+    return scaler.transform(users_genres)
+
+
+def getClustersIndex(clusters, users_genres):
+    clusters = dd.from_dask_array(clusters)
+    clusters = clusters.reset_index().rename(columns={0: 'clusters'})
+    users_genres = users_genres.reset_index()
+    clusters_index = dd.merge(users_genres, clusters,
+                              left_index=True, right_on='index')
+    return clusters_index[['userId', 'clusters']]
 
 
 def dropZeroColumns(df):

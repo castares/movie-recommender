@@ -67,6 +67,7 @@ def addWeekdayColumns(ratings_ddf):
         lambda x: pd.Timestamp(x, unit='s').dayofweek, meta='category')
     ratings_ddf = ratings_ddf.categorize(columns='weekday')
     weekdays = dd.get_dummies(ratings_ddf['weekday'], prefix='weekday')
+    ratings_ddf['weekday'] = ratings_ddf['weekday'].astype('int64')
     return dd.concat([ratings_ddf, weekdays], axis=1, join='inner')
 
 
@@ -75,8 +76,8 @@ def ratingsNormalizer(ratings_ddf):
     scaler = preprocessing.MinMaxScaler()
     scaler.fit(ratings_ddf[["user_rt_mean", "movie_rt_mean"]])
     ratings_normalized = scaler.transform(
-        ratings_ddf[["avg_rt_user", "mean_rt_user"]])
-    ratings_ddf[['avg_rt_user', 'mean_rt_user']] = ratings_normalized
+        ratings_ddf[["user_rt_mean", "movie_rt_mean"]])
+    ratings_ddf[["user_rt_mean", "movie_rt_mean"]] = ratings_normalized
     return ratings_ddf
 
 
@@ -92,10 +93,10 @@ def popularityNormalizer(ratings_ddf):
 
 
 def defineXy(ratings_df):
-    ratings_ddf = dropZeroColumns(ratings_df)
-    to_X = [e for e in ratings_df.columns if ratings_df[e].max() <= 1]
+    to_X = [e for e in ratings_df.columns if ratings_df[e].max() <=
+            1 and ratings_df[e].max() > 0]
     X = ratings_df[to_X]
-    y = ratings_df['rating']
+    y = ratings_df['GT']
     return X, y
 
 
