@@ -46,5 +46,8 @@ Pipeline:
 4. Supervised Learning. 
 
 
+# TODO
 - API Response:
     - Movie id, movie title, predicted rating, genres, link to IMDB. 
+- Views on Clusters definition (by number of ratings, by some pairs of genres)
+- 

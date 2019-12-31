@@ -131,6 +131,9 @@ dmypy.json
 #vscode
 /.vscode
 
+#Dask
+/dask-worker-space
+
 # Other
 /input
 /output
