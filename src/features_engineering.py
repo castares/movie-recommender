@@ -92,14 +92,6 @@ def popularityNormalizer(ratings_ddf):
     return ratings_ddf
 
 
-def defineXy(ratings_df):
-    to_X = [e for e in ratings_df.columns if ratings_df[e].max() <=
-            1 and ratings_df[e].max() > 0]
-    X = ratings_df[to_X]
-    y = ratings_df['GT']
-    return X, y
-
-
 def main():
     ratings = dd.read_csv('../input/ratings_small.csv')
     genres_dummies = pd.read_csv('../input/genres_dummies.csv')

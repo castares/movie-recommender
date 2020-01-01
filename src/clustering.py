@@ -28,7 +28,7 @@ def dataScaling(users_genres):
 
 def getClustersIndex(clusters, users_genres):
     clusters = dd.from_dask_array(clusters, )
-    clusters = clusters.reset_index().rename(columns={0: 'clusters'})
+    clusters = clusters.reset_index().rename(columns={0: 'cluster'})
     users_genres = users_genres.reset_index()
     clusters_index = dd.merge(users_genres, clusters,
                               left_index=True, right_on='index')
