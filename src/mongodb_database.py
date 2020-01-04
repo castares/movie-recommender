@@ -36,11 +36,11 @@ def addUsersbulk(ratings, collection=users):
     ratings_grouped = ratings.groupby(['userId'])
     for userid, _ in ratings_grouped:
         user_avg_rating = ratings_grouped.get_group(
-            userid)['user_avg_rating'].max()
+            userid)['user_rt_mean'].max()
         movieids = [e for e in ratings_grouped.get_group(userid)['movieId']]
         new_user = {
             'userId': int(userid),
-            'user_avg_rating': user_avg_rating,
+            'user_rt_mean': user_rt_mean,
             'movies_rated': movieids
         }
         addDocument(collection, new_user)
@@ -51,12 +51,12 @@ def addMoviesBulk(ratings, genres_list, collection=movies):
     movies_grouped = ratings.groupby(['movieId'])
     for movieid, _ in movies_grouped:
         movie_avg_rating = movies_grouped.get_group(
-            movieid)['movie_avg_rating'].max()
+            movieid)['movie_rt_mean'].max()
         popularity = movies_grouped.get_group(movieid)['popularity'].max()
-        cluster = movies_grouped.get_group(movieid)['clusters'].max()
-        genres = {genre: int(movies_grouped.get_group(
+        cluster = list(movies_grouped.get_group(movieid).unique()
+        genres={genre: int(movies_grouped.get_group(
             movieid)[genre].max()) for genre in genres_list}
-        new_movie = {
+        new_movie={
             'movieId': int(movieid),
             'movie_avg_rating': float(movie_avg_rating),
             'popularity': int(popularity),
@@ -69,9 +69,9 @@ def addMoviesBulk(ratings, genres_list, collection=movies):
 
 # TODO: The $nin on movieId doesn't work.
 def getMoviestoWatch(userId):
-    user = list(users.find({'userId': userId}))
-    watched = user[0]['movies_rated']
-    to_watch = list(movies.find(
+    user=list(users.find({'userId': userId}))
+    watched=user[0]['movies_rated']
+    to_watch=list(movies.find(
         {'movieId': {'$nin': watched}}))
     return user, to_watch
 
@@ -91,13 +91,13 @@ def main():
     # })
     # )
 
-    ratings = dd.read_csv('../output/ratings-0/ratings_0-*.csv')
-    ratings = ratings.rename(
+    ratings=dd.read_csv('../output/ratings-0/ratings_0-*.csv')
+    ratings=ratings.rename(
         columns={'mean_rt_user': 'movie_avg_rating', 'avg_rt_user': 'user_avg_rating', })
-    ratings = ratings.compute()
+    ratings=ratings.compute()
     fte.ratingsNormalizer(ratings)
     addUsersbulk(ratings)
-    genres_list = ['Action', 'Adventure', 'Animation',
+    genres_list=['Action', 'Adventure', 'Animation',
                    'Aniplex', 'BROSTA TV', 'Carousel Productions', 'Comedy', 'Crime',
                    'Documentary', 'Drama', 'Family', 'Fantasy', 'Foreign', 'GoHands',
                    'History', 'Horror', 'Mardock Scramble Production Committee', 'Music',

@@ -32,7 +32,7 @@ def getClustersIndex(clusters, users_genres):
     users_genres = users_genres.reset_index()
     clusters_index = dd.merge(users_genres, clusters,
                               left_index=True, right_on='index')
-    return clusters_index[['userId', 'clusters']]
+    return clusters_index[['userId', 'cluster']]
 
 
 def dropZeroColumns(df):
