@@ -32,46 +32,42 @@ def addDocument(collection, document):
     return collection.insert_one(document)
 
 
-def addUsersbulk(ratings, collection=users):
-    ratings_grouped = ratings.groupby(['userId'])
-    for userid, _ in ratings_grouped:
-        user_avg_rating = ratings_grouped.get_group(
-            userid)['user_rt_mean'].max()
-        movieids = [e for e in ratings_grouped.get_group(userid)['movieId']]
-        new_user = {
-            'userId': int(userid),
-            'user_rt_mean': user_rt_mean,
-            'movies_rated': movieids
+def addUsersbulk(ratings, userid, collection=users):
+    user = ratings.loc[ratings['userId'] == userid]
+    user_rt_mean = float(user['user_rt_mean'].max())
+    movieids = [e for e in user['movieId'].compute()]
+    new_user = {
+        'userId': int(userid),
+        'user_rt_mean': user_rt_mean,
+        'movies_rated': movieids
         }
         addDocument(collection, new_user)
-        print(f'user {userid} added to collection {collection}')
+    print(f'user {userid} added to collection {collection}')
 
 
-def addMoviesBulk(ratings, genres_list, collection=movies):
-    movies_grouped = ratings.groupby(['movieId'])
-    for movieid, _ in movies_grouped:
-        movie_avg_rating = movies_grouped.get_group(
-            movieid)['movie_rt_mean'].max()
-        popularity = movies_grouped.get_group(movieid)['popularity'].max()
-        cluster = list(movies_grouped.get_group(movieid).unique()
-        genres={genre: int(movies_grouped.get_group(
-            movieid)[genre].max()) for genre in genres_list}
-        new_movie={
+def addMoviesBulk(ratings, users_genres, movieid, collection=movies):
+    movie = ratings.loc[ratings['movieId'] == movieid].head(1)
+    clusters = list(ratings['cluster'].loc[ratings['movieId'] == movieid].unique().compute())
+    movie_avg_rating = float(movie['movie_rt_mean'])
+    popularity = int(movie['popularity'])
+    genres_list = list(users_genres.columns)
+    genres = {genre: int(movie[genre]) for genre in genres_list}
+    weekdays = {weekday: int(movie[f'weekday_{weekday}']) for weekday in range(0,7)}
+    new_movie = {
             'movieId': int(movieid),
             'movie_avg_rating': float(movie_avg_rating),
             'popularity': int(popularity),
-            'cluster': int(cluster),
+            'clusters': clusters,
             'genres': genres,
+            'weekdays' : weekdays
         }
-        addDocument(collection, new_movie)
-        print(f'movie {movieid} added to collection {collection}')
-
+    addDocument(collection, new_movie)
 
 # TODO: The $nin on movieId doesn't work.
 def getMoviestoWatch(userId):
-    user=list(users.find({'userId': userId}))
-    watched=user[0]['movies_rated']
-    to_watch=list(movies.find(
+    user = list(users.find({'userId': userId}))
+    watched = user[0]['movies_rated']
+    to_watch = list(movies.find(
         {'movieId': {'$nin': watched}}))
     return user, to_watch
 
@@ -91,13 +87,13 @@ def main():
     # })
     # )
 
-    ratings=dd.read_csv('../output/ratings-0/ratings_0-*.csv')
-    ratings=ratings.rename(
+    ratings = dd.read_csv('../output/ratings-0/ratings_0-*.csv')
+    ratings = ratings.rename(
         columns={'mean_rt_user': 'movie_avg_rating', 'avg_rt_user': 'user_avg_rating', })
-    ratings=ratings.compute()
+    ratings = ratings.compute()
     fte.ratingsNormalizer(ratings)
     addUsersbulk(ratings)
-    genres_list=['Action', 'Adventure', 'Animation',
+    genres_list = ['Action', 'Adventure', 'Animation',
                    'Aniplex', 'BROSTA TV', 'Carousel Productions', 'Comedy', 'Crime',
                    'Documentary', 'Drama', 'Family', 'Fantasy', 'Foreign', 'GoHands',
                    'History', 'Horror', 'Mardock Scramble Production Committee', 'Music',
@@ -106,7 +102,6 @@ def main():
                    'Telescene Film Group Productions', 'The Cartel', 'Thriller',
                    'Vision View Entertainment', 'War', 'Western']
     addMoviesBulk(ratings, genres_list)
-
 
     # collist = db.list_collection_names()
     # # Create New Collections
