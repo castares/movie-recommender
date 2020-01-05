@@ -38,7 +38,6 @@ def popularityNormalizer(ratings_ddf):
 def testrecommender(userId):
     df = buildDataframe(userId)
     df = popularityNormalizer(df)
-    df = fte.dropZeroColumns(df)
     to_X = [e for e in df.columns if df[e].max() <= 1]
     X = df[to_X]
     # X.drop(columns='movieId', inplace=True)

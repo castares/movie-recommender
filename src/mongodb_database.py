@@ -18,52 +18,82 @@ movies = db['movies']
 metadata = db['movies_metadata']
 
 
-def getOverview(movieid):
-    response = list(metadata.find({"id": movieid}, {"overview": 1}))
-    print(response)
-    if type(response) == str:
-        return []
-    else:
-        return response[0]['overview']
-
-
 def addDocument(collection, document):
     # Standard function to insert documents on MongoDB
     return collection.insert_one(document)
 
 
-def addUsersbulk(ratings, userid, collection=users):
-    user = ratings.loc[ratings['userId'] == userid]
-    user_rt_mean = float(user['user_rt_mean'].max())
-    movieids = [e for e in user['movieId'].compute()]
-    new_user = {
-        'userId': int(userid),
-        'user_rt_mean': user_rt_mean,
-        'movies_rated': movieids
-    }
-    addDocument(collection, new_user)
-    print(f'user {userid} added to collection {collection}')
+def addUsersbulk(ratings, collection=users):
+    ratings_grouped = ratings.groupby(['userId'])
+    for userid, _ in ratings_grouped:
+        user_avg_rating = ratings_grouped.get_group(
+            userid)['user_rt_mean'].max()
+        movieids = [e for e in ratings_grouped.get_group(userid)['movieId']]
+        new_user = {
+            'userid': int(userid),
+            'user_rt_mean': user_avg_rating,
+            'movies_rated': movieids
+        }
+        addDocument(collection, new_user)
+        print(f'user {userid} added to collection')
 
 
-def addMoviesBulk(ratings, users_genres, movieid, collection=movies):
-    movie = ratings.loc[ratings['movieId'] == movieid].head(1)
-    clusters = list(
-        ratings['cluster'].loc[ratings['movieId'] == movieid].unique().compute())
-    movie_avg_rating = float(movie['movie_rt_mean'])
-    popularity = int(movie['popularity'])
-    genres_list = list(users_genres.columns)
-    genres = {genre: int(movie[genre]) for genre in genres_list}
-    weekdays = {str(weekday): int(movie[f'weekday_{weekday}'])
-                for weekday in range(0, 7)}
-    new_movie = {
-        'movieId': int(movieid),
-        'movie_avg_rating': float(movie_avg_rating),
-        'popularity': int(popularity),
-        'clusters': clusters,
-        'genres': genres,
-        'weekdays': weekdays
-    }
-    addDocument(collection, new_movie)
+def addMoviesBulk(ratings, users_genres, collection=movies):
+    movies_grouped = ratings.groupby('movieId')
+    for movieid, _ in movies_grouped:
+        movie_rt_mean = float(movies_grouped.get_group(
+            movieid)['movie_rt_mean'].max())
+        popularity = int(movies_grouped.get_group(movieid)['popularity'].max())
+        clusters = list(
+            map(int, movies_grouped.get_group(movieid)['cluster'].unique()))
+        genres_list = list(users_genres.columns)
+        genres = {genre: int(movies_grouped.get_group(
+            movieid)[genre].max()) for genre in genres_list}
+        new_movie = {
+            'movieid': int(movieid),
+            'movie_rt_mean': movie_rt_mean,
+            'popularity': popularity,
+            'clusters': clusters,
+            'genres': genres,
+        }
+        addDocument(collection, new_movie)
+        print(f'movie {movieid} added to collection')
+
+# These are alternative versions of the functions to populate the collections movies and users
+# without having to load the full dataset into memory.
+#  They require a higher computing time and power than the ones above.
+# def addUsersbulk(ratings, userid, collection=users):
+#     user = ratings.loc[ratings['userId'] == userid]
+#     user_rt_mean = float(user['user_rt_mean'].max())
+#     movieids = [e for e in user['movieId'].compute()]
+#     new_user = {
+#         'userId': int(userid),
+#         'user_rt_mean': user_rt_mean,
+#         'movies_rated': movieids
+#     }
+#     addDocument(collection, new_user)
+#     print(f'user {userid} added to collection {collection}')
+
+
+# def addMoviesBulk(ratings, users_genres, movieid, collection=movies):
+#     movie = ratings.loc[ratings['movieId'] == movieid].head(1)
+#     clusters = list(
+#         ratings['cluster'].loc[ratings['movieId'] == movieid].unique().compute())
+#     movie_rt_mean = movie['movie_rt_mean']
+#     popularity = movie['popularity']
+#     genres_list = list(users_genres.columns)
+#     genres = {genre: int(movie[genre]) for genre in genres_list}
+#     weekdays = {str(weekday): int(movie[f'weekday_{weekday}'])
+#                 for weekday in range(0, 7)}
+#     new_movie = {
+#         'movieId': int(movieid),
+#         'movie_rt_mean': float(movie_rt_mean),
+#         'popularity': int(popularity),
+#         'clusters': clusters,
+#         'genres': genres,
+#         'weekdays': weekdays
+#     }
+#     addDocument(collection, new_movie)
 
 # TODO: The $nin on movieId doesn't work.
 
