@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import time
-from IPython.core.display import display, HTML
 
 # Dask
 import dask.array as da

@@ -43,14 +43,7 @@ def dropZeroColumns(df):
 
 
 def main():
-    ratings = dd.read_csv(
-        '/content/drive/My Drive/movie-recommender-input/ratings_small.csv')
-    ratings = fte.addUserFeatures(ratings_ddf)
-    genres_dummies = dd.read_csv(
-        '/content/drive/My Drive/movie-recommender-input/genres_dummies.csv')
-    fte.addGenresDummies(ratings, genres_dummies)
-    users_genres = userGenresMatrix(ratings, genres_dummies)
-    # dropZeroColumns(users_genres)
+    pass
 
 
 if __name__ == "__main__":
