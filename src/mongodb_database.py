@@ -15,7 +15,7 @@ db = client['movie-recommender']
 # define collections
 users = db['users']
 movies = db['movies']
-metadata = db['movies_metadata']
+metadata = db['metadata']
 
 
 def addDocument(collection, document):
@@ -26,38 +26,48 @@ def addDocument(collection, document):
 def addUsersbulk(ratings, collection=users):
     ratings_grouped = ratings.groupby(['userId'])
     for userid, _ in ratings_grouped:
-        user_avg_rating = ratings_grouped.get_group(
-            userid)['user_rt_mean'].max()
-        movieids = [e for e in ratings_grouped.get_group(userid)['movieId']]
-        new_user = {
-            'userid': int(userid),
-            'user_rt_mean': user_avg_rating,
-            'movies_rated': movieids
-        }
-        addDocument(collection, new_user)
-        print(f'user {userid} added to collection')
+        if not list(users.find({"userId": userid})):
+            user_avg_rating = ratings_grouped.get_group(
+                userid)['user_rt_mean'].max()
+            cluster = ratings_grouped.get_group(userid)['cluster'].max()
+            movieids = [e for e in ratings_grouped.get_group(userid)[
+                'movieId']]
+            new_user = {
+                'userId': int(userid),
+                'user_rt_mean': user_avg_rating,
+                'movies_rated': movieids,
+                'cluster': int(cluster),
+            }
+            addDocument(collection, new_user)
+            print(f'user {userid} added to collection')
+        else:
+            print(f'userId already exists. Try updating the document.')
 
 
 def addMoviesBulk(ratings, users_genres, collection=movies):
     movies_grouped = ratings.groupby('movieId')
     for movieid, _ in movies_grouped:
-        movie_rt_mean = float(movies_grouped.get_group(
-            movieid)['movie_rt_mean'].max())
-        popularity = int(movies_grouped.get_group(movieid)['popularity'].max())
-        clusters = list(
-            map(int, movies_grouped.get_group(movieid)['cluster'].unique()))
-        genres_list = list(users_genres.columns)
-        genres = {genre: int(movies_grouped.get_group(
-            movieid)[genre].max()) for genre in genres_list}
-        new_movie = {
-            'movieid': int(movieid),
-            'movie_rt_mean': movie_rt_mean,
-            'popularity': popularity,
-            'clusters': clusters,
-            'genres': genres,
-        }
-        addDocument(collection, new_movie)
-        print(f'movie {movieid} added to collection')
+        if not list(movies.find({"movieId": movieid})):
+            movie_rt_mean = float(movies_grouped.get_group(
+                movieid)['movie_rt_mean'].max())
+            popularity = int(movies_grouped.get_group(
+                movieid)['popularity'].max())
+            clusters = list(
+                map(int, movies_grouped.get_group(movieid)['cluster'].unique()))
+            genres_list = list(users_genres.columns)
+            genres = {genre: int(movies_grouped.get_group(
+                movieid)[genre].max()) for genre in genres_list}
+            new_movie = {
+                'movieId': int(movieid),
+                'movie_rt_mean': movie_rt_mean,
+                'popularity': popularity,
+                'clusters': clusters,
+                'genres': genres,
+            }
+            addDocument(collection, new_movie)
+            print(f'movie {movieid} added to collection')
+        else:
+            print(f'userId already exists. Try updating the document.')
 
 # These are alternative versions of the functions to populate the collections movies and users
 # without having to load the full dataset into memory.
@@ -99,10 +109,10 @@ def addMoviesBulk(ratings, users_genres, collection=movies):
 
 
 def getMoviestoWatch(userId):
-    user = list(users.find({'userId': userId}))
+    user = list(users.find({'userId': userId}, {'_id': 0}))
     watched = user[0]['movies_rated']
     to_watch = list(movies.find(
-        {'movieId': {'$nin': watched}}))
+        {'clusters': {'$in': [user[0]['cluster']]}, 'movieId': {'$nin': watched}}))
     return user, to_watch
 
 
@@ -111,7 +121,8 @@ def getMovieNames(movieIds_list):
 
 
 def main():
-    addDocument(movies, {'test': 1})
+    print(list(metadata.find({'id': {'$in': [2, 3, 5]}}, {
+        'id': 1, 'original_title': 1, 'overview': 1})))
 
 
 if __name__ == "__main__":
