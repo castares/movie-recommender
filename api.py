@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from bottle import post, get, request, response, run, Bottle
+from bottle import post, get, request, response, run, Bottle, template
 import re
 import os
 import pandas as pd
@@ -45,7 +45,7 @@ def recommender(userId):
             'predicted rating': round(float(df['prediction'].loc[df['movieId'] == e['id']]), 1)
         }
         results.append(result)
-    return results
+    return json.dumps({'userId': userId, 'predictions': results})
 
 
 with open("output/models/gbrdefaultpickle_file.joblib", 'rb') as gbrpickle:
@@ -53,8 +53,8 @@ with open("output/models/gbrdefaultpickle_file.joblib", 'rb') as gbrpickle:
 
 
 @get("/")
-def home():
-    return 'Movie Day.'
+def index():
+    return template('./html/index.html')
 
 
 @get("/user/<userId>")
