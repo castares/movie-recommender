@@ -105,15 +105,20 @@ def addMoviesBulk(ratings, users_genres, collection=movies):
 #     }
 #     addDocument(collection, new_movie)
 
-# TODO: The $nin on movieId doesn't work.
+def getUser(userId):
+    return list(users.find({'userId': userId}, {'_id': 0}))
 
 
 def getMoviestoWatch(userId):
-    user = list(users.find({'userId': userId}, {'_id': 0}))
+    user = getUser(userId)
     watched = user[0]['movies_rated']
     to_watch = list(movies.find(
-        {'clusters': {'$in': [user[0]['cluster']]}, 'movieId': {'$nin': watched}}, {'_id : 0'}))
+        {'clusters': {'$in': [user[0]['cluster']]}, 'movieId': {'$nin': watched}}))
     return user, to_watch
+
+
+def getusersByCluster(cluster):
+    return list(users.find({'cluster': cluster}, {'_id': 0, 'userId': 1, 'cluster': 1, 'user_rt_mean': 1}))
 
 
 def getMovieNames(movieIds_list):

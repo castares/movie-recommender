@@ -11,17 +11,15 @@ import src.mongodb_database as mdb
 import src.features_engineering as fte
 
 from joblib import dump, load
-from sklearn.ensemble import GradientBoostingRegressor
-from dask_ml import preprocessing
 
 
-def buildDataframe(userId, weekday):
+def buildDataframe(userId):
     user, to_watch = mdb.getMoviestoWatch(userId)
     df = pd.DataFrame.from_dict(to_watch)
     df = df.join(pd.get_dummies(df['genres'].apply(pd.Series)))
     for e in range(0, 7):
         df[f'weekday_{e}'] = 0
-    df[f'weekday_{weekday}'] = 100
+    # df[f'weekday_{weekday}'] = 1
     df['user_rt_mean'] = user[0]['user_rt_mean']
     return df[['movieId', 'user_rt_mean', 'movie_rt_mean', 'popularity', 'weekday_0', 'weekday_1',
                'weekday_2', 'weekday_3', 'weekday_4', 'weekday_5', 'weekday_6',
@@ -31,8 +29,8 @@ def buildDataframe(userId, weekday):
                'Western']]
 
 
-def recommenderWeekday(userId, weekday):
-    df = buildDataframe(userId, weekday)
+def recommender(userId):
+    df = buildDataframe(userId)
     X = df.drop(columns='movieId')
     prediction = gbr.predict(X)
     df['prediction'] = prediction
@@ -56,17 +54,25 @@ with open("output/models/gbrdefaultpickle_file.joblib", 'rb') as gbrpickle:
 
 @get("/")
 def home():
-    return 'Movie Day'
+    return 'Movie Day.'
 
 
 @get("/user/<userId>")
-def moviesRecommendation(userId):
-    # try:
-    #     int(userId)
-    #     int(weekday)
-    # except:
-    #     raise ValueError(f'{userId} and {weekday} must be integers.')
-    return json.dumps(recommenderWeekday(int(userId), int(weekday)))
+def recommendation(userId):
+    try:
+        userId = int(userId)
+    except:
+        raise ValueError(f'<userId> must be an integer.')
+    return json.dumps(recommender(userId))
+
+
+@get("/user/list/<cluster>")
+def usersByCluster(cluster):
+    try:
+        cluster = int(cluster)
+    except:
+        raise ValueError(f'<cluster> must be an integer.')
+    return json.dumps(mdb.getusersByCluster(cluster))
 
 
 def main():
