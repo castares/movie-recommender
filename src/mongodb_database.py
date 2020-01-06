@@ -112,7 +112,7 @@ def getMoviestoWatch(userId):
     user = list(users.find({'userId': userId}, {'_id': 0}))
     watched = user[0]['movies_rated']
     to_watch = list(movies.find(
-        {'clusters': {'$in': [user[0]['cluster']]}, 'movieId': {'$nin': watched}}))
+        {'clusters': {'$in': [user[0]['cluster']]}, 'movieId': {'$nin': watched}}, {'_id : 0'}))
     return user, to_watch
 
 

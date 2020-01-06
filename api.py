@@ -1,4 +1,4 @@
-
+#! /usr/bin/python3
 
 from bottle import post, get, request, response, run, Bottle
 import re
@@ -21,11 +21,8 @@ def buildDataframe(userId, weekday):
     df = df.join(pd.get_dummies(df['genres'].apply(pd.Series)))
     for e in range(0, 7):
         df[f'weekday_{e}'] = 0
-    df[f'weekday_{weekday}'] = 1
-    # df.drop(columns=['_id', 'genres'], inplace=True)
+    df[f'weekday_{weekday}'] = 100
     df['user_rt_mean'] = user[0]['user_rt_mean']
-    # cols = df.columns.tolist()
-    # cols = cols[-1:] + cols[:-1]
     return df[['movieId', 'user_rt_mean', 'movie_rt_mean', 'popularity', 'weekday_0', 'weekday_1',
                'weekday_2', 'weekday_3', 'weekday_4', 'weekday_5', 'weekday_6',
                'Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary',
@@ -35,7 +32,7 @@ def buildDataframe(userId, weekday):
 
 
 def recommenderWeekday(userId, weekday):
-    df = buildDataframe(671, 5)
+    df = buildDataframe(userId, weekday)
     X = df.drop(columns='movieId')
     prediction = gbr.predict(X)
     df['prediction'] = prediction
@@ -47,7 +44,7 @@ def recommenderWeekday(userId, weekday):
         result = {
             "id": e['id'],
             'name': e['original_title'],
-            'predicted rating': round(float(df['prediction'].loc[df['movieId'] == e['id']]), 2)
+            'predicted rating': round(float(df['prediction'].loc[df['movieId'] == e['id']]), 1)
         }
         results.append(result)
     return results
