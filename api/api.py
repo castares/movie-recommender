@@ -5,13 +5,13 @@ import re
 import os
 import pandas as pd
 import json
+from joblib import dump, load
 
 # Local Files
 import src.mongodb_database as mdb
-import src.features_engineering as fte
 
-from joblib import dump, load
-
+with open("models/gbrdefaultpickle_file.joblib", 'rb') as gbrpickle:
+    gbr = load(gbrpickle)
 
 def buildDataframe(userId):
     user, to_watch = mdb.getMoviestoWatch(userId)
@@ -46,10 +46,6 @@ def recommender(userId):
         }
         results.append(result)
     return json.dumps({'userId': userId, 'predictions': results})
-
-
-with open("output/models/gbrdefaultpickle_file.joblib", 'rb') as gbrpickle:
-    gbr = load(gbrpickle)
 
 
 @get("/")

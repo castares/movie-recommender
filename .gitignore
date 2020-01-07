@@ -139,3 +139,4 @@ dmypy.json
 /output
 /dask-worker-space
 /tests
+/documentation
