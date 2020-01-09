@@ -8,13 +8,14 @@ import json
 from joblib import dump, load
 
 # Local Files
-import src.mongodb_database as mdb
+import src.database_queries as dbq
 
 with open("models/gbrdefaultpickle_file.joblib", 'rb') as gbrpickle:
     gbr = load(gbrpickle)
 
+
 def buildDataframe(userId):
-    user, to_watch = mdb.getMoviestoWatch(userId)
+    user, to_watch = dbq.getMoviestoWatch(userId)
     df = pd.DataFrame.from_dict(to_watch)
     df = df.join(pd.get_dummies(df['genres'].apply(pd.Series)))
     for e in range(0, 7):
@@ -36,7 +37,7 @@ def recommender(userId):
     df['prediction'] = prediction
     X['movieId'] = df['movieId']
     df = df.sort_values('prediction', ascending=False)
-    metadata = list(mdb.getMovieNames(list(df['movieId'][0:10])))
+    metadata = list(dbq.getMovieNames(list(df['movieId'][0:10])))
     results = []
     for e in metadata:
         result = {
@@ -62,13 +63,22 @@ def recommendation(userId):
     return json.dumps(recommender(userId))
 
 
+@get("/user/<userId>/toprated")
+def userTopRated(userId):
+    try:
+        userId = int(userId)
+    except:
+        raise ValueError(f'<userId> must be an integer.')
+    return json.dumps(dbq.topratedMovies(userId))
+
+
 @get("/user/list/<cluster>")
 def usersByCluster(cluster):
     try:
         cluster = int(cluster)
     except:
         raise ValueError(f'<cluster> must be an integer.')
-    return json.dumps(mdb.getusersByCluster(cluster))
+    return json.dumps(dbq.getusersByCluster(cluster))
 
 
 def main():

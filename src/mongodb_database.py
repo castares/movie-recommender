@@ -32,11 +32,14 @@ def addUsersbulk(ratings, collection=users):
             cluster = ratings_grouped.get_group(userid)['cluster'].max()
             movieids = [e for e in ratings_grouped.get_group(userid)[
                 'movieId']]
+            ratings = list(ratings_grouped.get_group(
+                userid)[['movieId', 'rating']].to_dict(orient="records"))
             new_user = {
                 'userId': int(userid),
                 'user_rt_mean': user_avg_rating,
                 'movies_rated': movieids,
                 'cluster': int(cluster),
+                'ratings': ratings,
             }
             addDocument(collection, new_user)
             print(f'user {userid} added to collection')

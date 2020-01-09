@@ -42,7 +42,7 @@ def addMoviesFeatures(ratings_ddf):
     ratings_5 = dd.merge(ratings_4, movie_ratings_number, on='movieId')
     ratings_5 = ratings_5.rename(columns={
         'userId_x': 'userId',
-        'rating_x': 'GT',
+        'rating_x': 'rating',
         'rating_y': 'movie_rt_mean',
         'userId_y': 'popularity'
     })

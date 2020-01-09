@@ -140,3 +140,4 @@ dmypy.json
 /dask-worker-space
 /tests
 /documentation
+/gcloud_credentials

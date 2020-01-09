@@ -1,0 +1,21 @@
+kind: Pod
+metadata:
+  labels:
+    foo: bar
+spec:
+  restartPolicy: Never
+  containers:
+  - image: daskdev/dask:latest
+    imagePullPolicy: IfNotPresent
+    args: [dask-worker, --nthreads, '1', --no-bokeh, --memory-limit, 6GB, --death-timeout, '60']
+    name: dask
+    env:
+      - name: EXTRA_PIP_PACKAGES
+        value: gcsfs joblib dask-ml scikit-learn --upgrade
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1G
+      requests:
+        cpu: "1"
+        memory: 1G

@@ -15,7 +15,7 @@ def defineXy(ratings_df):
     to_X = [e for e in ratings_df.columns if ratings_df[e].max() <=
             1 and ratings_df[e].max() > 0]
     X = ratings_df[to_X]
-    y = ratings_df['GT']
+    y = ratings_df['rating']
     return X, y
 
 
