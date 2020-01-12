@@ -1,5 +1,5 @@
 
-Movie Time is a collaborative recommender system based on Machine Learning using the [MovieLens Dataset](https://grouplens.org/datasets/movielens/latest/)  and the metadata of the movies from Kaggle's [The Movies Dataset](https://www.kaggle.com/rounakbanik/the-movies-dataset). Using Scikit-Learn for both Clustering and user rating prediction. The feature extraction and Machine Learning process are written in Pandas and Dask for full scalability. The data is stored on a MongoDB Atlas and is accessible through a bottle based API deployed in Heroku.
+Movie Time is a collaborative recommender system based on Machine Learning using the [MovieLens Dataset](https://grouplens.org/datasets/movielens/latest/)  and the metadata of the movies from Kaggle's [The Movies Dataset](https://www.kaggle.com/rounakbanik/the-movies-dataset). Using Scikit-Learn for both Clustering and user rating prediction. The feature extraction and Machine Learning process are written in Pandas and Dask for full scalability. The data is stored on a MongoDB Atlas and is accessible through a Bottle based API deployed in Heroku.
 
 ### 1. The Pipeline 
 
@@ -14,7 +14,7 @@ The original Dataset consisted of a list of movie ratings, including four column
 Taking some of the features, I have created a dataframe with the users and their preferences of movie genres. To do this I summed the genres dummy columns from each movie rating and normalized the results. I passed this table to a Spectral Clustering algorithm to obtain 4 Clusters of users.
 
 1.3 Movie Rating Prediction: 
-Using the whole dataset with the extracted features, I have searched for the best algorithm to predict user ratings, using RSME as the metric. I obtained the best results with the Gradient Boosting Regressor with their default parameters (the metric does not get better with tuning), getting an RSME of 0.81.
+Using the whole dataset with the extracted features, I have searched for the best algorithm to predict user ratings, using RSME as the metric. I obtained the best results with the Gradient Boosting Regressor with their default parameters (the metric does not get better with hyperparameter tuning), getting an RSME of 0.81.
 
 1.4 The Database:
 Once the Clusters are defined, I have stored separately the data in MongoDB Atlas, splitting the data into three collections: Users, Movies & Metadata. To interact with this data, see below the [API documentation](https://github.com/castares/movie-time/blob/master/API_Documentation.md).
