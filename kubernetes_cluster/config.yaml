@@ -3,16 +3,16 @@ worker:
     resources:
       limits:
         cpu: 1
-        memory: 7.5G
+        memory: 5G
       requests:
         cpu: 1
-        memory: 7.5G
+        memory: 3G
     env:
       - name: EXTRA_PIP_PACKAGES
-        value: gcsfs joblib dask-ml scikit-learn --upgrade
+        value: gcsfs pandas numpy pymongo dask joblib dask-ml python-dotenv scikit-learn --upgrade
  
 jupyter:
-    enabled: true
+    enabled: false
     env:
         - name: EXTRA_PIP_PACKAGES
-          value: gcsfs joblib dask-ml scikit-learn --upgrade
+          value: pandas numpy pymongo dask joblib dask-ml python-dotenv scikit-learn --upgrade
