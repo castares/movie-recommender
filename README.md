@@ -27,7 +27,7 @@ Once the Clusters are defined, I have stored separately the data in MongoDB Atla
 
 API URL: https://movie-time-api.herokuapp.com/
 
-To be able to produce recommendations at the user's demand, I have built an API using Bottle's Framework. The central endpoint of this API is */user/[userid]/recommendation". 
+To be able to produce recommendations at the user's demand, I have built an API using Bottle's Framework. The central endpoint of this API is */user/[userid]/recommendation*. 
 
 When a request is received on that endpoint the below process starts: 
 
