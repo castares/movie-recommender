@@ -28,7 +28,7 @@ def getUser(userId):
 
 def topratedMovies(userId):
     user = getUser(userId)
-    return user[0]["ratings"]
+    return {userId: user[0]["ratings"]}
 
 
 def getMoviestoWatch(userId):

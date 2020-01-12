@@ -46,7 +46,7 @@ def recommender(userId):
             'predicted rating': round(float(df['prediction'].loc[df['movieId'] == e['id']]), 1)
         }
         results.append(result)
-    return json.dumps({'userId': userId, 'predictions': results})
+    return {'userId': userId, 'predictions': results}
 
 
 @get("/")
@@ -54,7 +54,7 @@ def index():
     return template('./html/index.html')
 
 
-@get("/user/<userId>")
+@get("/user/<userId>/recommendation")
 def recommendation(userId):
     try:
         userId = int(userId)
@@ -63,7 +63,7 @@ def recommendation(userId):
     return json.dumps(recommender(userId))
 
 
-@get("/user/<userId>/toprated")
+@get("/user/<userId>/rated")
 def userTopRated(userId):
     try:
         userId = int(userId)
