@@ -81,6 +81,26 @@ def usersByCluster(cluster):
     return json.dumps(dbq.getusersByCluster(cluster))
 
 
+@get("/movie/<movieid>/metadata")
+def movieMetadata(movieid):
+    # Get the Metadata of a given movie
+    try:
+        movieid = int(movieid)
+    except:
+        raise ValueError('movieid must be an integer.')
+    return json.dumps(dbq.getMovieMetadata(movieid))
+
+
+@get("/movie/list/<clusterid>")
+def moviesbyCluster(clusterid):
+    # Get all the movies watched by users of a given Cluster.
+    try:
+        clusterid = int(clusterid)
+    except:
+        raise ValueError('movieid must be an integer.')
+    return json.dumps(dbq.getmoviesbyCluster(clusterid))
+
+
 def main():
     port = int(os.getenv('PORT', 8080))
     host = os.getenv('IP', '0.0.0.0')

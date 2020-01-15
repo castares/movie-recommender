@@ -47,6 +47,14 @@ def getMovieNames(movieIds_list):
     return metadata.find({'id': {'$in': movieIds_list}}, {'id': 1, 'original_title': 1, 'overview': 1})
 
 
+def getMovieMetadata(movieid):
+    return list(metadata.find({'id': movieid}, {'_id': 0, 'id': 1, 'genres': 1, 'imdb_id': 1, 'revenue': 1, 'runtime': 1}))
+
+
+def getmoviesbyCluster(clusterid):
+    return list(movies.find({'clusters': {"$in": [clusterid]}}, {'_id': 0}))
+
+
 def main():
     print(getUser(671))
 
