@@ -1,11 +1,13 @@
 
-Movie Time is a collaborative recommender system based on Machine Learning using the [MovieLens Dataset](https://grouplens.org/datasets/movielens/latest/)  and the metadata of the movies from Kaggle's [The Movies Dataset](https://www.kaggle.com/rounakbanik/the-movies-dataset). Using Scikit-Learn for both Clustering and user rating prediction. The feature extraction and Machine Learning process are written in Pandas and Dask for full scalability. The data is stored on a MongoDB Atlas and is accessible through a Bottle based API deployed in Heroku.
+# Movie Time
+
+Movie Time is a collaborative recommender system based on Machine Learning. It uses the [MovieLens Dataset](https://grouplens.org/datasets/movielens/latest/) and the metadata of the movies from Kaggle's [The Movies Dataset](https://www.kaggle.com/rounakbanik/the-movies-dataset). The Machine Learning modeling is built with Scikit-Learn for both Clustering and user rating prediction. The feature extraction and Machine Learning process are written in Pandas and Dask for full scalability. The data is stored on a MongoDB Atlas and is accessible through a Bottle based API deployed in Heroku.
 
 ### 1. The Pipeline 
 
 ![the_pipeline](/resources/the_pipeline.png)
 
-(To see an example of the process explained below, go to [pipeline.ipynb](https://github.com/castares/movie-time/blob/master/pipeline.ipynb) notebook.)
+(An example of the process explained below is available at [pipeline.ipynb](https://github.com/castares/movie-time/blob/master/pipeline.ipynb) notebook.)
 
 1.1. Features Extraction:
 The original Dataset consisted of a list of movie ratings, including four columns: Timestamp, User Id, Movie Id, and a Rating from 0 to 5. Using that information and the metadata of the movies, I have extracted up to 30 columns, including the mean of user and movie ratings, the movie popularity (count of ratings within the Dataset), the genres of the movies (dummy columns for each available genre), and the day of the week in which the rating has been done (also dummy columns). 
@@ -23,11 +25,11 @@ Once the Clusters are defined, I have stored separately the data in MongoDB Atla
 
 ![the_api](resources/the_api.png)
 
-(To see the full documentation of the API, go to [API documentation](https://github.com/castares/movie-time/blob/master/API_Documentation.md)).
+(To see the full documentation of the API, got to [API documentation](https://github.com/castares/movie-time/blob/master/API_Documentation.md)).
 
 API URL: https://movie-time-api.herokuapp.com/
 
-To be able to produce recommendations at the user's demand, I have built an API using Bottle's Framework. The central resource of this API is the user rating prediction, accesible from */user/[userid]/recommendation*. 
+To be able to produce recommendations at the user's demand, I have built an API using Bottle's Framework. The central resource of this API is the user rating prediction, accesible  from */user/[userid]/recommendation*. 
 
 When a request is received on that resource the below process starts: 
 
