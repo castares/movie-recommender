@@ -98,7 +98,7 @@ def moviesbyCluster(clusterid):
         clusterid = int(clusterid)
     except:
         raise ValueError('movieid must be an integer.')
-    return json.dumps(dbq.getmoviesbyCluster(clusterid))
+    return json.dumps(dbq.getMoviesbyCluster(clusterid))
 
 
 def main():

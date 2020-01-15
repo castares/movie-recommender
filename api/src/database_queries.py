@@ -51,7 +51,7 @@ def getMovieMetadata(movieid):
     return list(metadata.find({'id': movieid}, {'_id': 0, 'id': 1, 'genres': 1, 'imdb_id': 1, 'revenue': 1, 'runtime': 1}))
 
 
-def getmoviesbyCluster(clusterid):
+def getMoviesbyCluster(clusterid):
     return list(movies.find({'clusters': {"$in": [clusterid]}}, {'_id': 0}))
 
 
