@@ -23,9 +23,57 @@ All responses are in JSON.
         {'movieId': 590, 'rating': 4.0},
         ....
 
-*GET* *"/user/list/[cluster]"*: Returns all the users assigned to the given cluster.
-- *Response:* `userId`, `cluster`, `user_rt_mean`
+*GET* *"/user/list/[clusterid]"*: Returns all the users assigned to the given cluster.
+- *Response:* `userId`, `clusterid`, `user_rt_mean`
     - Example: 
     [{'userId': 17, 'user_rt_mean': 3.743801652892562, 'cluster': 3},
     {'userId': 48, 'user_rt_mean': 3.5146198830409356, 'cluster': 3},
     ...
+
+*GET* *"/movie/[movieid]/metadata"*: Returns the metadata of a given movie.
+- *Response:* `movieid`, `genres`, `imdb_id`, `revenue`, `runtime`
+    - Example:
+    [{'genres': "['Drama', 'Crime']",
+  'id': 2,
+  'imdb_id': 'tt0094675',
+  'revenue': 0.0,
+  'runtime': 69.0}]
+
+*GET* *"/movie/list/[clusterid]"*: Returns all the movies rated by users assigned to a given cluster id.
+- *Response:* `movieId` `movie_rt_mean` `popularity` `clusters` `genres`
+    - Example: {'movieId': 2,
+ 'movie_rt_mean': 3.4018691588785046,
+ 'popularity': 107,
+ 'clusters': [1, 0, 3, 2],
+ 'genres': {'Action': 0,
+  'Adventure': 0,
+  'Animation': 0,
+  'Aniplex': 0,
+  'BROSTA TV': 0,
+  'Carousel Productions': 0,
+  'Comedy': 0,
+  'Crime': 1,
+  'Documentary': 0,
+  'Drama': 1,
+  'Family': 0,
+  'Fantasy': 0,
+  'Foreign': 0,
+  'GoHands': 0,
+  'History': 0,
+  'Horror': 0,
+  'Mardock Scramble Production Committee': 0,
+  'Music': 0,
+  'Mystery': 0,
+  'Odyssey Media': 0,
+  'Pulser Productions': 0,
+  'Rogue State': 0,
+  'Romance': 0,
+  'Science Fiction': 0,
+  'Sentai Filmworks': 0,
+  'TV Movie': 0,
+  'Telescene Film Group Productions': 0,
+  'The Cartel': 0,
+  'Thriller': 0,
+  'Vision View Entertainment': 0,
+  'War': 0,
+  'Western': 0}}
