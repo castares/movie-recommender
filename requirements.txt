@@ -7,6 +7,6 @@ dask-ml==1.1.1
 bottle==0.12.20
 python-dotenv==0.10.3
 scikit-learn==0.22
-joblib==0.14.0
+joblib==1.2.0
 json5==0.8.5
 jupyterlab==1.2.21
